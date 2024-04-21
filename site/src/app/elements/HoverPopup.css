@@ -1,0 +1,52 @@
+.hover-popup {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  height: 200px;
+  position: absolute;
+  z-index: 99;
+  bottom: calc(100% - 10px);
+  /* bottom: calc(100%); */
+  /* bottom: calc(100% + 10px); */
+  /* top: calc(100% + 10px); */
+  /* left: 50%; */
+  left: calc(100% + 60px);
+  transform: translateX(-50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  row-gap: 10px;
+  margin-bottom: 10px;
+}
+
+.hover-popup-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.hover-popup-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+}
+
+.hover-popup-button {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  background-color: black;
+}
+
+.hover-popup-nickname {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.hover-popup-bio {
+  /* font-size: 15px; */
+  color: gray;
+}
