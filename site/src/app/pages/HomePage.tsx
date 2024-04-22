@@ -108,9 +108,9 @@ class HomePage extends React.Component<{}, HomePageState> {
     const scrollTop = document.documentElement.scrollTop;
     const clientHeight = document.documentElement.clientHeight;
 
-    if (scrollTop + clientHeight + 300 >= scrollHeight)
-      if (!this.state.loading && !this.state.loadNextPage)
-        this.nextPage();
+    // if (scrollTop + clientHeight + 300 >= scrollHeight)
+    //   if (!this.state.loading && !this.state.loadNextPage)
+    //     this.nextPage();
   }
 
   onRangeChange(e: React.FormEvent<HTMLSelectElement>) {
@@ -121,9 +121,6 @@ class HomePage extends React.Component<{}, HomePageState> {
   async start() {
     let address = await isLoggedIn();
     this.setState({ isLoggedIn: address, address });
-
-    // let nickname = localStorage.getItem('nickname');
-    // if (nickname) this.setState({ nickname });
 
     await this.getPosts();
     this.getProfile()
@@ -164,6 +161,8 @@ class HomePage extends React.Component<{}, HomePageState> {
 
       // let bal_aot = await getTokenBalance(AOT_TEST, process);
       // Server.service.setBalanceOfAOT(bal_aot);
+
+      this.getProfile()
     }
   }
 
@@ -384,20 +383,22 @@ class HomePage extends React.Component<{}, HomePageState> {
           <Logo />
 
           <div className='home-page-profile'>
-            <div
-              className='home-page-portrait-container'
-              data-tooltip-id="my-tooltip"
-              data-tooltip-content="Change the profile"
-              onClick={this.openEditProfile}
-            >
-              <img
-                className='home-page-portrait'
-                src={this.state.avatar ? this.state.avatar : randomAvatar()}
-              />
-              <div className="home-page-nickname">
-                {this.state.nickname ? this.state.nickname : 'anonymous'}
+            {this.state.profile &&
+              <div
+                className='home-page-portrait-container'
+                data-tooltip-id="my-tooltip"
+                data-tooltip-content="Change the profile"
+                onClick={this.openEditProfile}
+              >
+                <img
+                  className='home-page-portrait'
+                  src={this.state.avatar ? this.state.avatar : randomAvatar()}
+                />
+                <div className="home-page-nickname">
+                  {this.state.nickname ? this.state.nickname : 'anonymous'}
+                </div>
               </div>
-            </div>
+            }
 
             <div
               className="home-page-address"

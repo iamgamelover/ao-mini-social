@@ -31,7 +31,7 @@ class App extends React.Component<{}, {}> {
             <Route path="/story" element={<StoryPage />} />
             <Route path="/token" element={<TokenPage />} />
             <Route path="/games" element={<GamesPage />} />
-            <Route path="/chat" element={<ChatPage />} />
+            <Route path="/chat/:id" element={<ChatPage />} />
             <Route path="/bookmarks" element={<BookmarksPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/user/:id" element={<ProfilePage />} />

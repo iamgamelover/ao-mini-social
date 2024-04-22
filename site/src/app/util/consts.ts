@@ -1,4 +1,5 @@
-export const MINI_SOCIAL = "Uew2frmpZ_tlvgc12PAWENUXleMoc6eAvcGutFFTZ-s";
+// export const MINI_SOCIAL = "Uew2frmpZ_tlvgc12PAWENUXleMoc6eAvcGutFFTZ-s";
+export const MINI_SOCIAL = "TWVCanI-Rh4su4YyOIlwJj0Lg61xdOLM_HwedZFc7tE";
 export const AO_STORY = "Ur_5hhtX6zQEpFg9jPzFULMTLRvkBfp4bn7Od4Qj4Jk";
 export const STORY_INCOME = "LsNy8F1GSkGvE0IJ6g1RFpHHjKE6tmtXUT91WIv3PMQ";
 export const CRED = "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc";

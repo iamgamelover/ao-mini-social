@@ -5,6 +5,7 @@
   "dependencies": {
     "@dicebear/collection": "^8.0.0",
     "@dicebear/core": "^8.0.0",
+    "@irys/sdk": "^0.1.22",
     "@permaweb/aoconnect": "^0.0.51",
     "@types/node": "^20.11.1",
     "@types/react": "^18.0.9",

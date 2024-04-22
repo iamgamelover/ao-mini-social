@@ -15,6 +15,7 @@ import ActivityPost from '../elements/ActivityPost';
 import { subscribe } from '../util/event';
 import Logo from '../elements/Logo';
 import { CiMail } from "react-icons/ci";
+import { NavLink } from 'react-router-dom';
 
 declare var window: any;
 
@@ -116,7 +117,7 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
 
   async start() {
     let id = window.location.pathname.substring(6);
-    console.log("id:", id)
+    // console.log("id:", id)
 
     let address = await isLoggedIn();
     this.setState({ isLoggedIn: address, address: id });
@@ -126,22 +127,7 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
     await this.getProfile(id);
     await this.isFollowing();
     await this.getFollows();
-    await this.tempGetFollowsTable();
-
-    // let profile = JSON.parse(localStorage.getItem('profile'));
-    // if (profile) {
-    //   this.setState({
-    //     banner: profile.banner,
-    //     avatar: profile.avatar,
-    //     nickname: profile.nickname,
-    //     bio: profile.bio,
-    //   });
-    // }
-    // else {
-    //   // the avatar from dicebear.com
-    //   this.createAvatar();
-    //   this.getProfile(address);
-    // }
+    // await this.tempGetFollowsTable();
   }
 
   async getPosts(address: string) {
@@ -364,9 +350,9 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
       return (
         <div className="profile-page-button-container">
           {this.state.isFriend &&
-            <div onClick={this.openEditProfile} className="profile-page-action-button">
+            <NavLink className="profile-page-action-button" to={'/chat/' + this.state.address}>
               <CiMail />
-            </div>
+            </NavLink>
           }
 
           {this.state.isFollowing
