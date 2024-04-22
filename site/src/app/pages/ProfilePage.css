@@ -56,17 +56,15 @@
 }
 
 .profile-page-action-button {
-  width: 50px;
+  width: 42px;
   height: 40px;
   font-size: 18pt;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* color: #ffffffa0; */
-  margin-left: 10px;
-  /* border: 1px solid #ffffff60; */
-  border: 1px solid #1c29bc60;
-  border-radius: 6px;
+  margin-right: 15px;
+  border: 1px solid gray;
+  border-radius: 50%;
   cursor: pointer;
 }
 

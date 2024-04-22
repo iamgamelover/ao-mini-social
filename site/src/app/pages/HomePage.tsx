@@ -245,8 +245,7 @@ class HomePage extends React.Component<{}, HomePageState> {
 
     if (!posts || new_post) {
       posts = await getDataFromAO(MINI_SOCIAL, 'GetPosts');
-      console.log("posts:", posts)
-      // let final = parsePosts(posts);
+      console.log("home->posts:", posts)
       this.checkBookmarks(posts);
       return;
     }
@@ -272,6 +271,17 @@ class HomePage extends React.Component<{}, HomePageState> {
   }
 
   async checkBookmarks(posts: any) {
+
+    //
+    let address = Server.service.getActiveAddress();
+    for (let i = 0; i < posts.length; i++) {
+      let isLiked = await getDataFromAO(MINI_SOCIAL, 'GetLike', '0', posts[i].id, address);
+      console.log("post isLiked:", isLiked)
+      if (isLiked.length > 0)
+        posts[i].isLiked = true;
+      // this.forceUpdate()
+    }
+
     let bookmarks = [];
     let val = localStorage.getItem('bookmarks');
     if (val) bookmarks = JSON.parse(val);
@@ -283,6 +293,7 @@ class HomePage extends React.Component<{}, HomePageState> {
 
     Server.service.addPostsToCache(posts);
     this.setState({ posts, loading: false, loadNextPage: false });
+
   }
 
   renderPosts() {

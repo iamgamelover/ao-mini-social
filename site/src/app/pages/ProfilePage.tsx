@@ -14,6 +14,7 @@ import Loading from '../elements/Loading';
 import ActivityPost from '../elements/ActivityPost';
 import { subscribe } from '../util/event';
 import Logo from '../elements/Logo';
+import { CiMail } from "react-icons/ci";
 
 declare var window: any;
 
@@ -38,6 +39,8 @@ interface ProfilePageState {
   following: number;
   isFollowing: boolean;
   showUnfollow: boolean;
+  butDisable: boolean;
+  isFriend: boolean;
 }
 
 class ProfilePage extends React.Component<{}, ProfilePageState> {
@@ -67,6 +70,8 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
       following: 0,
       isFollowing: false,
       showUnfollow: false,
+      butDisable: true,
+      isFriend: false,
     };
 
     this.openEditProfile = this.openEditProfile.bind(this);
@@ -149,7 +154,7 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
 
     if (!posts) {
       posts = await getDataFromAO(MINI_SOCIAL, 'GetPosts', '0', '', address);
-      console.log("posts:", posts)
+      console.log("profile->posts:", posts)
       if (posts.length < PAGE_SIZE)
         this.setState({ isAll: true })
 
@@ -182,6 +187,17 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
   }
 
   async checkBookmarks(posts: any) {
+
+    //
+    let address = Server.service.getActiveAddress();
+    for (let i = 0; i < posts.length; i++) {
+      let isLiked = await getDataFromAO(MINI_SOCIAL, 'GetLike', '0', posts[i].id, address);
+      console.log("post isLiked:", isLiked)
+      if (isLiked.length > 0)
+        posts[i].isLiked = true;
+      // this.forceUpdate()
+    }
+
     let bookmarks = [];
     let val = localStorage.getItem('bookmarks');
     if (val) bookmarks = JSON.parse(val);
@@ -275,17 +291,29 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
   }
 
   async follow() {
+    if (this.state.butDisable) return;
+    this.setState({ butDisable: true })
+
     let data = { following: this.state.address, follower: Server.service.getActiveAddress(), time: timeOfNow() }
-    // console.log("data:", data)
-    let response = await messageToAO(MINI_SOCIAL, data, 'Follow');
-    this.isFollowing()
+    // console.log("follow data:", data)
+    await messageToAO(MINI_SOCIAL, data, 'Follow');
+    await this.isFollowing()
+
+    this.setState({ butDisable: false })
+    await this.getFollows();
   }
 
   async unfollow() {
+    if (this.state.butDisable) return;
+    this.setState({ butDisable: true })
+
     let data = { following: this.state.address, follower: Server.service.getActiveAddress() }
     // console.log("Unfollow data:", data)
-    let response = await messageToAO(MINI_SOCIAL, data, 'Unfollow');
-    this.isFollowing()
+    await messageToAO(MINI_SOCIAL, data, 'Unfollow');
+    await this.isFollowing()
+
+    this.setState({ butDisable: false })
+    await this.getFollows();
   }
 
   async tempGetFollowsTable() {
@@ -305,11 +333,19 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
 
   async isFollowing() {
     let isFollowing = await getDataFromAO(MINI_SOCIAL, 'GetFollowing', '0', Server.service.getActiveAddress(), this.state.address);
-    // console.log("isFollowing:", isFollowing)
+    console.log("isFollowing:", isFollowing)
     if (isFollowing.length > 0)
-      this.setState({ isFollowing: true })
+      this.setState({ isFollowing: true, butDisable: false })
     else
-      this.setState({ isFollowing: false })
+      this.setState({ isFollowing: false, butDisable: false })
+
+    let isFollower = await getDataFromAO(MINI_SOCIAL, 'GetFollowing', '0', this.state.address, Server.service.getActiveAddress());
+    console.log("isFollower:", isFollower)
+
+    if (isFollowing.length > 0 && isFollower.length > 0)
+      this.setState({ isFriend: true });
+    else
+      this.setState({ isFriend: false });
   }
 
   showUnfollow() {
@@ -327,6 +363,12 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
     if (this.state.address !== Server.service.getActiveAddress())
       return (
         <div className="profile-page-button-container">
+          {this.state.isFriend &&
+            <div onClick={this.openEditProfile} className="profile-page-action-button">
+              <CiMail />
+            </div>
+          }
+
           {this.state.isFollowing
             ? <div
               className={`profile-page-follow-button ${this.state.showUnfollow ? 'unfollow' : 'following'}`}
@@ -334,17 +376,25 @@ class ProfilePage extends React.Component<{}, ProfilePageState> {
               onMouseLeave={() => this.notShowUnfollow()}
               onClick={() => this.unfollow()}
             >
-              {this.state.showUnfollow ? 'Unfollow' : 'Following'}
+              {this.state.butDisable
+                ? <Loading marginTop='10px' />
+                : this.state.showUnfollow ? 'Unfollow' : 'Following'
+              }
             </div>
-            : <div className='profile-page-follow-button' onClick={() => this.follow()}>Follow</div>
+            : <div className='profile-page-follow-button' onClick={() => this.follow()}>
+              {this.state.butDisable
+                ? <Loading marginTop='10px' />
+                : 'Follow'
+              }
+            </div>
           }
         </div>
       )
 
     return (
       <div className="profile-page-button-container">
-        <div onClick={this.openEditProfile} className="profile-page-action-button">
-          <BsPencilFill />
+        <div onClick={this.openEditProfile} className="profile-page-follow-button following">
+          Edit
         </div>
       </div>
     )

@@ -12,6 +12,7 @@ import { AO_STORY, MINI_SOCIAL, TIP_IMG } from '../util/consts';
 import { Server } from '../../server/server';
 import QuestionModal from '../modals/QuestionModal';
 import Loading from '../elements/Loading';
+import Logo from '../elements/Logo';
 
 interface ActivityPostPageProps {
   type: string;
@@ -155,9 +156,17 @@ class ActivityPostPage extends React.Component<ActivityPostPageProps, ActivityPo
 
   async getPostById(id: string) {
     let data = await getDataFromAO(MINI_SOCIAL, 'GetPosts', '0', id);
-    console.log("data:", data)
+    console.log("one post -> data:", data)
     // let data = JSON.parse(resp[0]);
     Server.service.addPostToCache(data[0]);
+
+    //
+    let address = Server.service.getActiveAddress();
+    let isLiked = await getDataFromAO(MINI_SOCIAL, 'GetLike', '0', data[0].id, address);
+    console.log("post isLiked:", isLiked)
+    if (isLiked.length > 0)
+      data[0].isLiked = true;
+
     return data[0];
   }
 
@@ -165,21 +174,21 @@ class ActivityPostPage extends React.Component<ActivityPostPageProps, ActivityPo
     let replies;
     let type = this.props.type;
     if (type == 'post')
-      replies = await getDataFromAO(MINI_SOCIAL, 'GetReplies', null, null, this.postId);
+      replies = await getDataFromAO(MINI_SOCIAL, 'GetReplies', '0', this.postId);
     else
       replies = await getDataFromAO(AO_STORY, 'GetReplies', '0', this.postId);
 
     console.log("replies:", replies)
 
     this.setState({
-      replies: replies ? replies : [],
+      replies,
       loading_reply: false
     });
 
     //
     let address = Server.service.getActiveAddress();
     for (let i = 0; i < replies.length; i++) {
-      let isLiked = await getDataFromAO(AO_STORY, 'GetLike', '0', replies[i].id, address);
+      let isLiked = await getDataFromAO(MINI_SOCIAL, 'GetLike', '0', replies[i].id, address);
       console.log("reply isLiked:", isLiked)
       if (isLiked.length > 0)
         replies[i].isLiked = true;
@@ -203,8 +212,8 @@ class ActivityPostPage extends React.Component<ActivityPostPageProps, ActivityPo
     this.setState({ message: 'Replying...' });
 
     let post = this.quillRef.root.innerHTML;
-    let nickname = localStorage.getItem('nickname');
-    if (!nickname) nickname = 'anonymous';
+    // let nickname = localStorage.getItem('nickname');
+    // if (!nickname) nickname = 'anonymous';
 
     let data = {
       id: uuid(), post_id: this.postId, address, post,
@@ -217,14 +226,12 @@ class ActivityPostPage extends React.Component<ActivityPostPageProps, ActivityPo
       this.quillRef.setText('');
       this.state.post.replies += 1;
 
-      if (this.props.type == 'story')
-        this.state.replies.unshift(data);
-      else
-        this.state.replies.push(JSON.stringify(data));
-
+      // will works after cache the profile
+      // this.state.replies.unshift(data);
+      this.getReplies()
       this.setState({
         message: '',
-        replies: this.state.replies,
+        // replies: this.state.replies,
         post: this.state.post
       });
 
@@ -253,7 +260,7 @@ class ActivityPostPage extends React.Component<ActivityPostPageProps, ActivityPo
       divs.push(
         <ActivityPost
           key={uuid()}
-          data={this.props.type == 'post' ? JSON.parse(replies[i]) : replies[i]}
+          data={replies[i]}
           isReply={true}
         />
       )
@@ -270,6 +277,7 @@ class ActivityPostPage extends React.Component<ActivityPostPageProps, ActivityPo
 
     return (
       <div className="activity-post-page">
+        <Logo />
         <div className="activity-post-page-header" onClick={() => this.onBack()}>
           <div className="activity-post-page-back-button"><BsFillArrowLeftCircleFill /></div>
           <div>

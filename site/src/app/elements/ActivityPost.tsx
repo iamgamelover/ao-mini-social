@@ -15,7 +15,7 @@ import { subscribe } from '../util/event';
 import { Tooltip } from 'react-tooltip'
 import BountyModal from '../modals/BountyModal';
 import { FaCoins } from 'react-icons/fa';
-import { AO_STORY, STORY_INCOME } from '../util/consts';
+import { AO_STORY, MINI_SOCIAL, STORY_INCOME } from '../util/consts';
 import QuestionModal from '../modals/QuestionModal';
 import MessageModal from '../modals/MessageModal';
 import HoverPopup from './HoverPopup';
@@ -173,7 +173,7 @@ class ActivityPost extends React.Component<ActivityPostProps, ActivityPostState>
     // }
 
     // this.createAvatar(avatar);
-    this.getProfile(this.props.data.address);
+    // this.getProfile(this.props.data.address);
   }
 
   // load profile from the process of user's
@@ -238,24 +238,27 @@ class ActivityPost extends React.Component<ActivityPostProps, ActivityPostState>
     this.props.data.coins = qty;
   }
 
-  async onLike() {
+  async onLike(e:any) {
+    e.stopPropagation();
+
     if (!Server.service.getIsLoggedIn()) {
       this.setState({ alert: 'Please connect to wallet.' });
       return;
     }
 
-    this.setState({ message: 'Liking the story...' });
+    this.setState({ message: 'Liking...' });
 
     let id = this.props.data.id;
     let action = 'UpdateLike';
     if (this.props.isReply) action = 'UpdateLikeForReply';
 
-    await messageToAO(AO_STORY, id, action);
+    await messageToAO(MINI_SOCIAL, id, action);
 
     // record the list of liked to ao
-    let data = { id, address: this.props.data.address, time: timeOfNow() }
-    // console.log("data:", data)
-    let SendLike = await messageToAO(AO_STORY, data, 'SendLike');
+    let address = Server.service.getActiveAddress();
+    let data = { id, address, time: timeOfNow() }
+    console.log("data:", data)
+    let SendLike = await messageToAO(MINI_SOCIAL, data, 'SendLike');
 
     // this.onTransfer()
 
@@ -388,6 +391,7 @@ class ActivityPost extends React.Component<ActivityPostProps, ActivityPostState>
               className='activity-post-action'
               data-tooltip-id="my-tooltip"
               data-tooltip-content="Liked!"
+              onClick={(e) => e.stopPropagation()}
             >
               <div className='activity-post-action-icon'>
                 <BsHeartFill color='red' />
@@ -400,8 +404,8 @@ class ActivityPost extends React.Component<ActivityPostProps, ActivityPostState>
             <div
               className='activity-post-action'
               data-tooltip-id="my-tooltip"
-              data-tooltip-content="Like the story and that will get a reward from Life."
-              onClick={() => this.onLike()}
+              data-tooltip-content="Like"
+              onClick={(e) => this.onLike(e)}
             >
               <div className='activity-post-action-icon'>
                 <BsHeart />
@@ -444,13 +448,6 @@ class ActivityPost extends React.Component<ActivityPostProps, ActivityPostState>
   render() {
     let owner = (this.props.data.address == this.state.address);
 
-    let avatar, nickname;
-    let profile = JSON.parse(localStorage.getItem('profile'));
-    if (profile) {
-      avatar = profile.avatar
-      nickname = profile.nickname
-    }
-
     let data = this.props.data;
     let address = data.address;
     if (address)
@@ -474,7 +471,8 @@ class ActivityPost extends React.Component<ActivityPostProps, ActivityPostState>
               className='home-msg-portrait'
               data-tooltip-id="my-tooltip"
               data-tooltip-content="Go to the profile page"
-              src={this.state.avatar ? this.state.avatar : randomAvatar()}
+              // src={this.state.avatar ? this.state.avatar : randomAvatar()}
+              src={data.avatar}
               onClick={(e) => this.goProfilePage(e, data.address)}
               // onMouseEnter={()=>this.openPopup()}
               // onMouseLeave={(e)=>this.closePopup(e)}
@@ -482,7 +480,8 @@ class ActivityPost extends React.Component<ActivityPostProps, ActivityPostState>
           </div>
 
           <div className="home-msg-nickname">
-            {this.state.nickname ? this.state.nickname : 'anonymous'}
+            {/* {this.state.nickname ? this.state.nickname : 'anonymous'} */}
+            {data.nickname}
           </div>
 
           <div className="home-msg-address">{address}</div>
