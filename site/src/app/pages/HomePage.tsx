@@ -134,7 +134,10 @@ class HomePage extends React.Component<{}, HomePageState> {
     if (connected) {
       let address = await getWalletAddress();
       this.setState({ isLoggedIn: 'true', address });
-      this.register(address);
+
+      // TODO: should check to if is exist of profile
+      if (await this.getProfile() == false)
+        this.register(address);
 
       Server.service.setIsLoggedIn(address);
       Server.service.setActiveAddress(address);
@@ -170,7 +173,8 @@ class HomePage extends React.Component<{}, HomePageState> {
   // This is a temp way, need to search varibale Members
   // to keep one, on browser side or AOS side (in lua code)
   async register(address: string) {
-    let data = { address, avatar: '', banner: '', nickname: '', bio: '', time: timeOfNow() };
+    let nickname = address.substring(0, 4) + '...' + address.substring(address.length - 4);
+    let data = { address, avatar: randomAvatar(), banner: '', nickname, bio: '', time: timeOfNow() };
     messageToAO(MINI_SOCIAL, data, 'Register');
   }
 
@@ -234,8 +238,12 @@ class HomePage extends React.Component<{}, HomePageState> {
   async getProfile() {
     let profile = await getProfile(Server.service.getActiveAddress());
     console.log("profile:", profile)
-    if (profile.length > 0)
+    if (profile.length > 0) {
       this.setState({ profile, avatar: profile[0].avatar, nickname: profile[0].nickname });
+      return true;
+    }
+    else
+      return false;
   }
 
   async getPosts(new_post?: boolean) {
@@ -244,11 +252,13 @@ class HomePage extends React.Component<{}, HomePageState> {
 
     if (!posts || new_post) {
       posts = await getDataFromAO(MINI_SOCIAL, 'GetPosts');
-      console.log("home->posts:", posts)
+      // console.log("home->posts:", posts)
+      this.setState({ posts, loading: false, loadNextPage: false });
       this.checkBookmarks(posts);
       return;
     }
 
+    // this.setState({ posts, loading: false, loadNextPage: false });
     this.checkBookmarks(posts);
     this.setState({ posts, loading: false });
     setTimeout(() => {
@@ -275,10 +285,9 @@ class HomePage extends React.Component<{}, HomePageState> {
     let address = Server.service.getActiveAddress();
     for (let i = 0; i < posts.length; i++) {
       let isLiked = await getDataFromAO(MINI_SOCIAL, 'GetLike', '0', posts[i].id, address);
-      console.log("post isLiked:", isLiked)
+      // console.log("post isLiked:", isLiked)
       if (isLiked.length > 0)
         posts[i].isLiked = true;
-      // this.forceUpdate()
     }
 
     let bookmarks = [];
@@ -292,7 +301,6 @@ class HomePage extends React.Component<{}, HomePageState> {
 
     Server.service.addPostsToCache(posts);
     this.setState({ posts, loading: false, loadNextPage: false });
-
   }
 
   renderPosts() {

@@ -472,7 +472,7 @@ class ActivityPost extends React.Component<ActivityPostProps, ActivityPostState>
               data-tooltip-id="my-tooltip"
               data-tooltip-content="Go to the profile page"
               // src={this.state.avatar ? this.state.avatar : randomAvatar()}
-              src={data.avatar}
+              src={data.avatar ? data.avatar : randomAvatar()}
               onClick={(e) => this.goProfilePage(e, data.address)}
               // onMouseEnter={()=>this.openPopup()}
               // onMouseLeave={(e)=>this.closePopup(e)}
@@ -481,7 +481,7 @@ class ActivityPost extends React.Component<ActivityPostProps, ActivityPostState>
 
           <div className="home-msg-nickname">
             {/* {this.state.nickname ? this.state.nickname : 'anonymous'} */}
-            {data.nickname}
+            {data.nickname ? data.nickname : 'anonymous'}
           </div>
 
           <div className="home-msg-address">{address}</div>
